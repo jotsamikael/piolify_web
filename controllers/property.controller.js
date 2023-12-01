@@ -41,7 +41,15 @@ const getAllProperties = async (req, res) => {
 }
 
 const getPropertyById = async (req, res) => {
+    const { id } = req.params;
+    console.log(id);
 
+    const propertyExists = await propertyModel.findOne({ _id: id }).populate('creator');
+    if (propertyExists) {
+        res.status(200).json(propertyExists)
+    } else {
+        res.status(404).json({ message: 'Property not found' });
+    }
 }
 
 const createProperty = async (req, res) => {
@@ -79,11 +87,53 @@ const createProperty = async (req, res) => {
 }
 
 const updateProperty = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, description, propertyType, location, price, featured_photo, phone } = req.body;
+        await propertyModel.findByIdAndUpdate({ _id: id }, {
+            title,
+            description,
+            propertyType,
+            location,
+            price,
+            featured_photo
+        })
+        console.log(price);
+        res.status(200).json({
+            message: `Property with id ${id} updated sucessfully`
+        })
+
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+
+    }
 
 }
 
 const deleteProperty = async (req, res) => {
+    try {
 
+        const { id } = req.params;
+        const propertyToDelete = await propertyModel.findById({
+            _id: id
+        }).populate('creator');
+        if (!propertyToDelete) {
+            throw new Error('Property not found')
+        }
+        console.log(propertyToDelete)
+        const session = await mongoose.startSession();
+        session.startTransaction();
+
+        await propertyModel.deleteOne({ _id: id }, { session });
+        propertyToDelete.creator.properties.pull(propertyToDelete);
+        await propertyToDelete.creator.save({ session });
+        await session.commitTransaction();
+        res.status(200).json({ message: 'Property deleted successfully' })
+
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+
+    }
 }
 
 export {

@@ -4,7 +4,6 @@ const getAllUsers = async (req, res) => {
     try {
         const pageSize = parseInt(req.query.pageSize) || 10;
         const offset = parseInt(req.query.offset) || 0;
-
         const users = await userModel.find({}).skip(offset).limit(pageSize);
         res.status(200).json(users);
     } catch (error) {
@@ -43,12 +42,23 @@ const getUserInfoByPhone = async (req, res) => {
         res.status(500).json({ message: error.message })
 
     }
+}
 
+const updateUser = async (req, res) => {
+    let phone = req.query.phone;
+    try {
+        const user = await userModel.find({ phone })
+        console.log(user)
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+
+    }
 }
 
 export {
     getAllUsers,
     createUser,
     getUserInfoById,
-    getUserInfoByPhone
+    getUserInfoByPhone,
+    updateUser
 }
