@@ -11,7 +11,7 @@ dotenv.config();
 app.use(cors())
 app.use(express.json('50mb')) //specify the size limit of files send from the frontend
 app.get('/', (req, res) => {
-    res.send({ message: "hellooo world" })
+    res.send({ message: "HOUREZ Ltd version 1.0" })
 })
 
 app.use('/api/v1/user', userRouter);
@@ -23,8 +23,8 @@ const startServer = async () => {
     try {
         //connect to database
         connectDB(process.env.MONGODB_URL);
-        app.listen(8000, () => {
-            console.log(`server running on http://localhost:8000`)
+        app.listen(process.env.PORT || 8000, () => {
+            console.log(`server running on http://localhost:${process.env.PORT}`)
         })
     } catch (error) {
         //catch any error
